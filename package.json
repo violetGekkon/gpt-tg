@@ -9,7 +9,7 @@
     "start": "node ./src/main.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "sia",
   "license": "ISC",
   "devDependencies": {
     "cross-env": "^7.0.3",
