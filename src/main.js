@@ -1,9 +1,8 @@
 import {Telegraf} from 'telegraf';
 import {message} from 'telegraf/filters';
+import { ogg } from './ogg.js'
 
 import config from 'config';
-import process from "nodemon";
-import * as Signals from "nodemon/lib/monitor/signals.js";
 
 const bot = new Telegraf(config.get('TELEGRAM_TOKEN'));
 
@@ -11,7 +10,10 @@ bot.on(message('voice'), async ctx => {
     try {
 // link - это объект URL, в котором много разных полезных полей, но интересует поле href, так как в нем содержится ссылка на голосовое сообщение
         const link = await ctx.telegram.getFileLink(ctx.message.voice.file_id);
-        await ctx.reply(JSON.stringify(link, null, 2))
+        const userId = String(ctx.message.from.id);
+        const oggPath = await ogg.create(link.href, userId);
+        const mp3Path = await ogg.toMp3(oggPath, userId);
+        await ctx.reply(mp3Path);
 
     } catch (error) {
         console.log(`Error while voice message`, error.message)
@@ -24,5 +26,5 @@ bot.command('start', async (ctx) => {
 
 bot.launch();
 
-process.once(Signals.SIGINT, () => bot.stop('SIGINT'));
-process.once(Signals.SIGTERM, () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
